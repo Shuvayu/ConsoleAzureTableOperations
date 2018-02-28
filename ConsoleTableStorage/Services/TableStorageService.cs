@@ -22,14 +22,14 @@ namespace ConsoleTableStorage.Services
         public void CreateTableStorageTable(string tableName)
         {
             CloudTable table = _tableClient.GetTableReference(tableName);
-            table.CreateIfNotExistsAsync().Wait();
+            table.CreateIfNotExistsAsync().GetAwaiter().GetResult();
         }
 
         public void InsertIntoTableStorage(string tableName, CarEntityModel car)
         {
             CloudTable table = _tableClient.GetTableReference(tableName);
             TableOperation insert = TableOperation.Insert(car);
-            table.ExecuteAsync(insert).Wait();
+            table.ExecuteAsync(insert).GetAwaiter().GetResult();
         }
 
         public void RetrieveAllFromTableStorage(string tableName)
@@ -37,7 +37,7 @@ namespace ConsoleTableStorage.Services
             TableQuery<CarEntityModel> carQuery = new TableQuery<CarEntityModel>(); // Can add predicate here
             CloudTable table = _tableClient.GetTableReference(tableName);
             TableContinuationToken token = null;
-            var result = (table.ExecuteQuerySegmentedAsync(carQuery, token).Result).ToList();
+            var result = (table.ExecuteQuerySegmentedAsync(carQuery, token).GetAwaiter().GetResult()).ToList();
             foreach (var car in result)
             {
                 Console.WriteLine("{0} {1} {2} {3}", car.Year, car.Make, car.Model, car.Color);
@@ -48,7 +48,7 @@ namespace ConsoleTableStorage.Services
         {
             CloudTable table = _tableClient.GetTableReference(tableName);
             TableOperation retrieve = TableOperation.Retrieve<CarEntityModel>(partitionKey, rowId);
-            TableResult result = table.ExecuteAsync(retrieve).Result;
+            TableResult result = table.ExecuteAsync(retrieve).GetAwaiter().GetResult();
             if (result.Result == null)
             {
                 Console.WriteLine("Not Found.");
